@@ -1,0 +1,30 @@
+---
+- name: Deploy Application
+  hosts: app_servers
+  become: true
+  tasks:
+    - name: Clone Git repository
+      git:
+        repo: "https://github.com/your_username/your_app_repo.git"
+        dest: "/path/to/deployment_directory"
+        update: yes
+
+    - name: Install application dependencies
+      command: "pip install -r /path/to/deployment_directory/requirements.txt"
+
+    - name: Set environment variables
+      template:
+        src: /path/to/deployment_directory/.env.j2
+        dest: /path/to/application/.env
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+
+    - name: Run application migrations
+      command: "/path/to/deployment_directory/manage.py migrate"
+
+    - name: Restart application service
+      systemd:
+        name: your_app_service_name
+        state: restarted
+
+    # Add more tasks for application-specific deployment steps
